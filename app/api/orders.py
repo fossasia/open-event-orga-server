@@ -300,7 +300,8 @@ class OrdersList(ResourceList):
         if kwargs.get('event_id') and not has_access(
             'is_coorganizer', event_id=kwargs['event_id']
         ):
-            raise ForbiddenError({'source': ''}, "Co-Organizer Access Required")
+            raise ForbiddenError({'parameter': 'event_id'},
+                                 "Co-Organizer Access Required")
 
     def query(self, view_kwargs):
         query_ = self.session.query(Order)
@@ -308,7 +309,7 @@ class OrdersList(ResourceList):
             # orders under a user
             user = safe_query_kwargs(User, view_kwargs, 'user_id')
             if not has_access('is_user_itself', user_id=user.id):
-                raise ForbiddenError({'source': ''}, 'Access Forbidden')
+                raise ForbiddenError({'parameter': 'user_id'}, 'Access Forbidden')
             query_ = query_.join(User, User.id == Order.user_id).filter(
                 User.id == user.id
             )
@@ -359,7 +360,8 @@ class OrderDetail(ResourceDetail):
             user_id=order.user_id,
         ):
             raise ForbiddenError(
-                {'source': ''}, 'You can only access your orders or your event\'s orders'
+                {'source': 'event_id and user_id'},
+                'You can only access your orders or your event\'s orders'
             )
 
         # expire the initializing order if time limit is over.
@@ -578,14 +580,14 @@ class OrderDetail(ResourceDetail):
         :return:
         """
         if not has_access('is_coorganizer', event_id=order.event.id):
-            raise ForbiddenError({'source': ''}, 'Access Forbidden')
+            raise ForbiddenError({'parameter': 'order'}, 'Access Forbidden')
         elif (
             order.amount
             and order.amount > 0
             and (order.status == 'completed' or order.status == 'placed')
         ):
             raise ConflictError(
-                {'source': ''}, 'You cannot delete a placed/completed paid order.'
+                'You cannot delete a placed/completed paid order.'
             )
 
     # This is to ensure that the permissions manager runs and hence changes the kwarg from order identifier to id.
@@ -626,8 +628,9 @@ class OrderRelationship(ResourceRelationship):
         if not has_access(
             'is_coorganizer', event_id=order.event_id, user_id=order.user_id
         ):
-            raise ForbiddenError(
-                {'source': ''}, 'You can only access your orders or your event\'s orders'
+            raise ConflictError(
+                {'source': 'event_id and user_id'},
+                'You can only access your orders or your event\'s orders'
             )
 
     decorators = (jwt_required,)
@@ -686,7 +689,7 @@ def create_paypal_payment(order_identifier):
         return_url = request.json['data']['attributes']['return-url']
         cancel_url = request.json['data']['attributes']['cancel-url']
     except TypeError:
-        raise BadRequestError({'source': ''}, 'Bad Request Error')
+        raise BadRequestError({'source': 'data/attributes'}, 'Bad Request Error')
 
     order = safe_query(Order, 'identifier', order_identifier, 'identifier')
     status, response = PayPalPaymentsManager.create_payment(order, return_url, cancel_url)
@@ -709,7 +712,7 @@ def verify_mobile_paypal_payment(order_identifier):
     try:
         payment_id = request.json['data']['attributes']['payment-id']
     except TypeError:
-        raise BadRequestError({'source': ''}, 'Bad Request Error')
+        raise BadRequestError({'source': 'data/attributes'}, 'Bad Request Error')
     order = safe_query(Order, 'identifier', order_identifier, 'identifier')
     status, error = PayPalPaymentsManager.verify_payment(payment_id, order)
     return jsonify(status=status, error=error)
@@ -740,7 +743,7 @@ def create_source(order_identifier):
         save_to_db(order)
         return jsonify(link=source_object.redirect['url'])
     except TypeError:
-        raise BadRequestError({'source': ''}, 'Source creation error')
+        raise BadRequestError('Source creation error')
 
 
 @alipay_blueprint.route(

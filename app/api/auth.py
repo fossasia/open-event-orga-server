@@ -196,7 +196,7 @@ def login_user(provider):
             'code': request.args.get('code'),
         }
         if not payload['client_id'] or not payload['client_secret']:
-            raise NotImplementedError({'source': ''}, 'Facebook Login Not Configured')
+            raise NotImplementedError('Facebook Login Not Configured')
         access_token = requests.get(
             'https://graph.facebook.com/v3.0/oauth/access_token', params=payload
         ).json()
@@ -279,18 +279,18 @@ def verify_email():
     try:
         token = base64.b64decode(request.json['data']['token'])
     except base64.binascii.Error:
-        raise BadRequestError({'source': ''}, 'Invalid Token')
+        raise BadRequestError({'source': 'token'}, 'Invalid Token')
     s = get_serializer()
 
     try:
         data = s.loads(token)
     except Exception:
-        raise BadRequestError({'source': ''}, 'Invalid Token')
+        raise BadRequestError({'source': 'token'}, 'Invalid Token')
 
     try:
         user = User.query.filter_by(email=data[0]).one()
     except Exception:
-        raise BadRequestError({'source': ''}, 'Invalid Token')
+        raise BadRequestError({'source': 'token'}, 'Invalid Token')
     else:
         user.is_verified = True
         save_to_db(user)
@@ -302,13 +302,13 @@ def resend_verification_email():
     try:
         email = request.json['data']['email']
     except TypeError:
-        raise BadRequestError({'source': ''}, 'Bad Request Error')
+        raise BadRequestError({'source': 'email'}, 'Bad Request Error')
 
     try:
         user = User.query.filter_by(email=email).one()
     except NoResultFound:
         raise UnprocessableEntityError(
-            {'source': ''}, 'User with email: ' + email + ' not found.'
+            {'source': 'email'}, 'User with email: ' + email + ' not found.'
         )
     else:
         serializer = get_serializer()
@@ -335,7 +335,7 @@ def reset_password_post():
     try:
         email = request.json['data']['email']
     except TypeError:
-        raise BadRequestError({'source': ''}, 'Bad Request Error')
+        raise BadRequestError({'source': 'email'}, 'Bad Request Error')
 
     try:
         user = User.query.filter_by(email=email).one()
@@ -377,7 +377,7 @@ def reset_password_patch():
     try:
         user = User.query.filter_by(reset_password=token).one()
     except NoResultFound:
-        raise NotFoundError({'source': ''}, 'User Not Found')
+        raise NotFoundError({'source': 'user'}, 'User Not Found')
     else:
         user.password = password
         if not user.is_verified:
@@ -402,16 +402,16 @@ def change_password():
     try:
         user = User.query.filter_by(id=current_user.id).one()
     except NoResultFound:
-        raise NotFoundError({'source': ''}, 'User Not Found')
+        raise NotFoundError({'source': 'user'}, 'User Not Found')
     else:
         if user.is_correct_password(old_password):
             if user.is_correct_password(new_password):
                 raise BadRequestError(
-                    {'source': ''}, 'Old and New passwords must be different'
+                    {'source': 'password'}, 'Old and New passwords must be different'
                 )
             if len(new_password) < 8:
                 raise BadRequestError(
-                    {'source': ''}, 'Password should have minimum 8 characters'
+                    {'source': 'password'}, 'Password should have minimum 8 characters'
                 )
             user.password = new_password
             save_to_db(user)
@@ -423,7 +423,8 @@ def change_password():
             )
         else:
             raise BadRequestError(
-                {'source': ''}, 'Wrong Password. Please enter correct current password.'
+                {'source': 'password'},
+                'Wrong Password. Please enter correct current password.'
             )
 
     return jsonify(

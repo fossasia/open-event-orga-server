@@ -41,7 +41,7 @@ def ticket_attendee_authorized(order_identifier):
             order = Order.query.filter_by(identifier=order_identifier).first()
         except NoResultFound:
             raise NotFoundError(
-                {'source': ''}, 'This ticket is not associated with any order'
+                {'source': 'ticket'}, 'This ticket is not associated with any order'
             )
         if current_user.can_download_tickets(order):
             key = UPLOAD_PATHS['pdf']['tickets_all'].format(identifier=order_identifier)
@@ -56,9 +56,9 @@ def ticket_attendee_authorized(order_identifier):
                 create_pdf_tickets_for_holder(order)
                 return return_file('ticket', file_path, order_identifier)
         else:
-            raise ForbiddenError({'source': ''}, 'Unauthorized Access')
+            raise ForbiddenError('Unauthorized Access')
     else:
-        raise ForbiddenError({'source': ''}, 'Authentication Required to access ticket')
+        raise ForbiddenError('Authentication Required to access ticket')
 
 
 @order_blueprint.route('/resend-email', methods=['POST'])
@@ -111,7 +111,8 @@ def resend_emails():
                 "Only placed and completed orders have confirmation",
             )
     else:
-        raise ForbiddenError({'source': ''}, "Co-Organizer Access Required")
+        raise ForbiddenError({'pointer': '/data/order/{identifier}'},
+                             "Co-Organizer Access Required")
 
 
 @order_blueprint.route('/calculate-amount', methods=['POST'])
