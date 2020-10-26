@@ -2,9 +2,11 @@ from marshmallow_jsonapi import fields
 from marshmallow_jsonapi.flask import Schema
 
 from app.api.helpers.utilities import dasherize
+from app.models.activity import Activity
+from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
 
 
-class ActivitySchema(Schema):
+class ActivitySchema(SQLAlchemyAutoSchema):
     """
     Api schema for Activity Model
     """
@@ -19,7 +21,8 @@ class ActivitySchema(Schema):
         self_view_kwargs = {'id': '<id>'}
         inflect = dasherize
 
-    id = fields.Str(dump_only=True)
-    actor = fields.Str(allow_none=True)
-    time = fields.DateTime(allow_none=True)
-    action = fields.Str(allow_none=True)
+    model = Activity
+    dump_only = ("id",)
+    load_instance = True
+    include_fk = True
+
