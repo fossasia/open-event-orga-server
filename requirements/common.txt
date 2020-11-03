@@ -30,7 +30,7 @@ stripe==2.55.0
 xhtml2pdf==0.2.5
 flask-caching==1.9.0
 forex-python==1.5
-pycryptodome==3.9.8
+pycryptodome==3.9.9
 oauth2~=1.9.0
 marshmallow-sqlalchemy==0.24.0
 qrcode==6.1
@@ -42,7 +42,7 @@ flask-cors==3.0.9
 python-pentabarf-xml==0.20
 python-geoip-geolite2==2015.303
 pycountry==20.7.3
-pytz==2020.1
+pytz==2020.4
 diff-match-patch==20200713
 blinker==1.4
 envparse==0.2
@@ -62,7 +62,7 @@ eventlet==0.29.1
 pyyaml==5.3.1
 sendgrid==6.4.7
 marshmallow==2.15.2
-WeasyPrint==52
+WeasyPrint==52.1
 
 # GraphQL support
 graphene-sqlalchemy==2.3.0
