@@ -16,7 +16,7 @@ class ActivitySchema(SQLAlchemyAutoSchema):
         self_view_kwargs = {'id': '<id>'}
         inflect = dasherize
 
-    model = Activity
-    dump_only = ("id",)
-    load_instance = True
-    include_fk = True
+        model = Activity
+        dump_only = ("id",)
+        load_instance = True
+        include_fk = True
