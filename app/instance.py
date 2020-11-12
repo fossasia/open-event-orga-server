@@ -8,8 +8,9 @@ import sentry_sdk
 import sqlalchemy as sa
 import stripe
 from celery.signals import after_task_publish
+from flask_babel import Babel
 from envparse import env
-from flask import Flask, json, make_response
+from flask import Flask, json, make_response, request
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 from flask_login import current_user
@@ -26,6 +27,7 @@ from app.api.helpers.auth import AuthManager, is_token_blacklisted
 from app.api.helpers.cache import cache
 from app.api.helpers.errors import ErrorResponse
 from app.api.helpers.jwt import jwt_user_loader
+from app.api.helpers.mail_recorder import MailRecorder
 from app.extensions import limiter, shell
 from app.models import db
 from app.models.utils import add_engine_pidguard, sqlite_datetime_fix
@@ -126,6 +128,8 @@ def create_app():
     app.config['CELERY_RESULT_BACKEND'] = app.config['CELERY_BROKER_URL']
     app.config['CELERY_ACCEPT_CONTENT'] = ['json', 'application/text']
 
+    app.config['MAIL_RECORDER'] = MailRecorder(use_env=True)
+
     CORS(app, resources={r"/*": {"origins": "*"}})
     AuthManager.init_login(app)
 
@@ -156,6 +160,7 @@ def create_app():
         from app.api.custom.orders import ticket_blueprint
         from app.api.custom.orders import order_blueprint
         from app.api.custom.invoices import event_blueprint
+        from app.api.custom.calendars import calendar_routes
 
         app.register_blueprint(api_v1)
         app.register_blueprint(event_copy)
@@ -178,6 +183,7 @@ def create_app():
         app.register_blueprint(order_blueprint)
         app.register_blueprint(event_blueprint)
         app.register_blueprint(sessions_blueprint)
+        app.register_blueprint(calendar_routes)
 
         add_engine_pidguard(db.engine)
 
@@ -220,6 +226,19 @@ def create_app():
 
 current_app = create_app()
 init_filters(app)
+
+# Babel
+babel = Babel(current_app)
+
+
+@babel.localeselector
+def get_locale():
+    # Try to guess the language from the user accept
+    # header the browser transmits. We support de/fr/en in this
+    # example. The best match wins.
+    # pytype: disable=mro-error
+    return request.accept_languages.best_match(current_app.config['ACCEPTED_LANGUAGES'])
+    # pytype: enable=mro-error
 
 
 # http://stackoverflow.com/questions/26724623/

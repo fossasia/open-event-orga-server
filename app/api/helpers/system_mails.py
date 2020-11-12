@@ -163,15 +163,6 @@ MAILS = {
     USER_REGISTER: {
         'recipient': 'User',
         'subject': 'Welcome to {app_name}. Please verify your account',
-        'message': (
-            "Hello,"
-            "<br/><br/>Your account has been created on {app_name}. Congratulations!"
-            "<br/><br/>Your login is: {email}"
-            "<br/><br/>Please visit the following link to verify your email: {link}"
-            "<br/><br/>Thank You,"
-            "<br/><br/>{app_name} Team"
-            "<br/>{frontend_url}"
-        ),
     },
     USER_REGISTER_WITH_PASSWORD: {
         'recipient': 'User',
@@ -200,25 +191,14 @@ MAILS = {
     PASSWORD_RESET: {
         'recipient': 'User',
         'subject': '{app_name}: Password Reset',
-        'message': (
-            "Please use the following link to reset your password.<br> <a href='{link}' target='_blank'>{link}</a>"
-            + " Or paste this token in your {app_name} App: {token} "
-        ),
     },
     PASSWORD_RESET_AND_VERIFY: {
         'recipient': 'User',
         'subject': '{app_name}: Reset your password and verify your account',
-        'message': (
-            "Please use the following link to reset your password and verify your account."
-            + "<br> <a href='{link}' target='_blank'>{link}</a>"
-        ),
     },
     PASSWORD_CHANGE: {
         'recipient': 'User',
         'subject': '{app_name}: Password Change',
-        'message': (
-            "Your password has been successfully changed. Please login with your new password."
-        ),
     },
     EVENT_ROLE: {
         'recipient': 'User',
@@ -241,25 +221,10 @@ MAILS = {
     TICKET_PURCHASED: {
         'recipient': 'User',
         'subject': 'Your order invoice and tickets for {event_name} ({invoice_id}) ',
-        'message': (
-            "Hi, this is a confirmation mail of your tickets for the event {event_name}"
-            "<br/>Your order has been processed successfully."
-            "<br/> You can find your Tickets and Order Invoice at the link below."
-            "<br/>{order_view_url}"
-            "<br><br><em>Looking forward to seeing you at the event."
-            "<br/>Login to manage your orders at {frontend_url} </em>"
-        ),
     },
     TICKET_PURCHASED_ATTENDEE: {
         'recipient': 'Attendee',
         'subject': 'Your tickets for {event_name} ({invoice_id}) ',
-        'message': (
-            "Hi, this is a confirmation mail of your tickets for the event {event_name}"
-            "<br/>Your order has been processed successfully."
-            "<br><br>You can download your tickets in <b>My Tickets</b> section."
-            "<br/>Login to manage the orders at <a href='{my_tickets_url}' target='_blank'>{my_tickets_url}</a> </em>"
-            "<br><br><em>Looking forward to seeing you at the event."
-        ),
     },
     TICKET_PURCHASED_ORGANIZER: {
         'recipient': 'Owner, Organizer, Coorganizer',
@@ -267,8 +232,8 @@ MAILS = {
         'message': (
             "Hi, {buyer_email} just bought tickets for the event {event_name}"
             "<br/>The order has been processed successfully."
-            + "<br/> <a href='{order_url}'>Click here</a> to view/download the invoice."
-            "<br/>Login to manage the orders at <a href='{frontend_url}' target='_blank'>{frontend_url}</a> </em>"
+            "<br/> <a href='{order_url}'>Click here</a> to view/download the invoice."
+            "<br/>Login to manage the orders at {frontend_url}"
         ),
     },
     TICKET_CANCELLED: {
