@@ -55,7 +55,6 @@ services:
       - web
     environment:
       <<: *environment-vars
-      C_FORCE_ROOT: "true"
     command: celery
 
 volumes:

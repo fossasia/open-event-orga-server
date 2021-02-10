@@ -42,5 +42,13 @@ WORKDIR /data/app
 ADD . .
 RUN ["sh", "scripts/l10n.sh", "generate"]
 
+RUN adduser -S open_event_user
+# Gives permission to open_event_user
+RUN chown -R open_event_user /data/app
+RUN chown -R open_event_user ./static
+RUN chown -R open_event_user ./generated
+# Change to non-root privilege
+USER open_event_user
+
 EXPOSE 8080
 ENTRYPOINT ["sh", "scripts/container_start.sh"]
